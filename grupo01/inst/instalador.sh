@@ -1,6 +1,6 @@
 #!/bin/bash
 
-GRUPO="$PWD/../../grupo01"
+GRUPO="$(cd "$(dirname "$0")";cd ..;pwd -P)"
 DIRINST="$GRUPO/inst"
 
 # Funciones
@@ -52,14 +52,19 @@ function hayInstalacionCorrupta {
 
 function mostrarConfiguracion {
 
-	echo "Directorio de ejecutables: $GRUPO/$DIRBIN"
-	echo "Directorio de tablas: $GRUPO/$DIRTAB"
-	echo "Directorio de novedades: $GRUPO/$DIRNOV"
-	echo "Directorio de aceptados: $GRUPO/$DIROK"	
-	echo "Directorio de rechazados: $GRUPO/$DIRNOK"
-	echo "Directorio de procesados: $GRUPO/$DIRPROC"
-	echo "Directorio de salidas: $GRUPO/$DIRSAL"
-	echo "Hora de Cierre: $HCIERRE" "(formato hhmmss)"
+	echo "TP SO7508 1º Cuatrimestre 2020. Copyright © Grupo 01"
+	echo "Directorio padre:                $GRUPO"
+	echo "Script Instalador:               $GRUPO/inst/instalador.sh"
+	echo "Log de la instalación:           $GRUPO/inst/instalador.log"
+	echo "Configuración de la instalación: $GRUPO/inst/instalador.conf"
+	echo "Directorio de ejecutables:       $GRUPO/$DIRBIN"
+	echo "Directorio de tablas:            $GRUPO/$DIRTAB"
+	echo "Directorio de novedades:         $GRUPO/$DIRNOV"
+	echo "Directorio de aceptados:         $GRUPO/$DIROK"	
+	echo "Directorio de rechazados:        $GRUPO/$DIRNOK"
+	echo "Directorio de procesados:        $GRUPO/$DIRPROC"
+	echo "Directorio de salidas:           $GRUPO/$DIRSAL"
+	echo "Hora de Cierre:                  $HCIERRE" "(formato hhmmss)"
 
 	return 0
 }
@@ -352,6 +357,8 @@ function configuracionDirectorios() {
 
 function confirmarConfiguracion {
 
+	echo "Estado de la instalación: $ESTADO_INSTALACION"
+
 	confirmo="false"
 	while [[ "$confirmo" == "false" ]]
 	do
@@ -429,6 +436,8 @@ function instalar {
 	logger "Iniciando instalación" "INF"
 	echo "Iniciando instalación"
 
+	cargarConfiguracion
+
 	crearArchivoLog	
 
 	while [ "$ESTADO_INSTALACION" == "CONF" ]
@@ -466,11 +475,17 @@ function eliminarInstalacionPrevia {
 
 	logger "Eliminado instalación previa" "INF"
 	echo "Eliminado instalación previa"
+
+	for dir in "$GRUPO"/*
+	do
+	    if [ "$dir" != "$GRUPO/inst" ]
+	    then
+	    	rm -R "$dir"
+	    fi
+	done
 }
 
 # Principal
-
-cargarConfiguracion
 
 if [[ $1 != "-r" ]]
 then
@@ -484,6 +499,7 @@ then
 		fi
 	else
 		echo "El Programa se encuentra instalado correctamente"
+		cargarConfiguracion
 		mostrarConfiguracion
 	fi
 else
@@ -492,6 +508,9 @@ else
 		reparar
 	else
 		echo "El Programa se encuentra instalado correctamente"
+		cargarConfiguracion
 		mostrarConfiguracion
 	fi
 fi
+
+exit 0
