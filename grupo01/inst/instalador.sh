@@ -2,6 +2,7 @@
 
 GRUPO="$(cd "$(dirname "$0")";cd ..;pwd -P)"
 DIRINST="$GRUPO/inst"
+DIRPAQUETE="$DIRINST/paquete"
 
 # Funciones
 
@@ -18,14 +19,23 @@ function variableConfigurada {
 
 function hayInstalacionPrevia {
 
-	if [[ -d "$GRUPO/$(variableConfigurada DIRBIN)" 
-		&&  -d "$GRUPO/$(variableConfigurada DIRTAB)" 
-	    &&  -d "$GRUPO/$(variableConfigurada DIRNOV)"
-	    &&  -d "$GRUPO/$(variableConfigurada DIROK)"
-	    &&  -d "$GRUPO/$(variableConfigurada DIRNOK)"
-	    &&  -d "$GRUPO/$(variableConfigurada DIRPROC)"
-	    &&  -d "$GRUPO/$(variableConfigurada DIRSAL)"
-	    &&  ! -z "$(variableConfigurada HCIERRE)" ]]
+	VAR_DIRBIN=$(variableConfigurada DIRBIN)
+	VAR_DIRTAB="$(variableConfigurada DIRTAB)"
+	VAR_DIRNOV="$(variableConfigurada DIRNOV)"
+	VAR_DIROK="$(variableConfigurada DIROK)"
+	VAR_DIRNOK="$(variableConfigurada DIRNOK)"
+	VAR_DIRPROC="$(variableConfigurada DIRPROC)"
+	VAR_DIRSAL="$(variableConfigurada DIRSAL)"
+	VAR_HCIERRE="$(variableConfigurada HCIERRE)"
+
+	if [[ ! -z "$VAR_DIRBIN" && -d "$GRUPO/$VAR_DIRBIN" && -r "$GRUPO/$VAR_DIRBIN"
+		&& ! -z "$VAR_DIRTAB" && -d "$GRUPO/$VAR_DIRTAB"  && -r "$GRUPO/$VAR_DIRTAB"
+	    && ! -z "$VAR_DIRNOV" && -d "$GRUPO/$VAR_DIRNOV"  && -r "$GRUPO/$VAR_DIRNOV"
+	    && ! -z "$VAR_DIROK" && -d "$GRUPO/$VAR_DIROK"   && -r "$GRUPO/$VAR_DIROK"
+	    && ! -z "$VAR_DIRNOK" && -d "$GRUPO/$VAR_DIRNOK"  && -r "$GRUPO/$VAR_DIRNOK"
+	    && ! -z "$VAR_DIRPROC" && -d "$GRUPO/$VAR_DIRPROC" && -r "$GRUPO/$VAR_DIRPROC"
+	    && ! -z "$VAR_DIRSAL" && -d "$GRUPO/$VAR_DIRSAL"  && -r "$GRUPO/$VAR_DIRSAL"
+	    && ! -z "$VAR_HCIERRE" ]]
 	then
 		return 0
 	else
@@ -35,14 +45,23 @@ function hayInstalacionPrevia {
 
 function hayInstalacionCorrupta {
 
-	if [[ -d "$GRUPO/$(variableConfigurada DIRBIN)"
-		|| -d "$GRUPO/$(variableConfigurada DIRTAB)"
-	    || -d "$GRUPO/$(variableConfigurada DIRNOV)"
-	    || -d "$GRUPO/$(variableConfigurada DIROK)"
-	    || -d "$GRUPO/$(variableConfigurada DIRNOK)"
-	    || -d "$GRUPO/$(variableConfigurada DIRPROC)"
-	    || -d "$GRUPO/$(variableConfigurada DIRSAL)"
-	    || ! -z "$(variableConfigurada HCIERRE)" ]]
+	VAR_DIRBIN=$(variableConfigurada DIRBIN)
+	VAR_DIRTAB="$(variableConfigurada DIRTAB)"
+	VAR_DIRNOV="$(variableConfigurada DIRNOV)"
+	VAR_DIROK="$(variableConfigurada DIROK)"
+	VAR_DIRNOK="$(variableConfigurada DIRNOK)"
+	VAR_DIRPROC="$(variableConfigurada DIRPROC)"
+	VAR_DIRSAL="$(variableConfigurada DIRSAL)"
+	VAR_HCIERRE="$(variableConfigurada HCIERRE)"
+
+	if [[ ! -z "$VAR_DIRBIN" || -d "$GRUPO/$VAR_DIRBIN"
+		|| ! -z "$VAR_DIRTAB" || -d "$GRUPO/$VAR_DIRTAB"
+	    || ! -z "$VAR_DIRNOV" || -d "$GRUPO/$VAR_DIRNOV"
+	    || ! -z "$VAR_DIROK" || -d "$GRUPO/$VAR_DIROK"
+	    || ! -z "$VAR_DIRNOK" || -d "$GRUPO/$VAR_DIRNOK"
+	    || ! -z "$VAR_DIRPROC" || -d "$GRUPO/$VAR_DIRPROC"
+	    || ! -z "$VAR_DIRSAL" || -d "$GRUPO/$VAR_DIRSAL"
+	    || ! -z "$VAR_HCIERRE" ]]
 	then
 		return 0
 	else
@@ -410,10 +429,12 @@ function crearDirectorios {
 	echo "Creando directorios del programa"
 
 	logger  "Directorio seleccionado de ejecutables: $GRUPO/$DIRBIN" "INF"
-	mkdir -p "$GRUPO/$DIRBIN"
+	mkdir  -m777  -p "$GRUPO/$DIRBIN"
+	cp "$DIRPAQUETE/"*.sh "$GRUPO/$DIRBIN"
 
 	logger "Directorio seleccionado de tablas: $GRUPO/$DIRTAB" "INF"
-	mkdir -p "$GRUPO/$DIRTAB"
+	mkdir -m777 -p "$GRUPO/$DIRTAB"
+	cp "$DIRPAQUETE/"*.csv "$GRUPO/$DIRTAB"
 
 	logger "Directorio seleccionado de novedades: $GRUPO/$DIRNOV" "INF"
 	mkdir -p "$GRUPO/$DIRNOV"
@@ -429,6 +450,10 @@ function crearDirectorios {
 
 	logger "Directorio seleccionado de salida: $GRUPO/$DIRSAL" "INF"
 	mkdir -p "$GRUPO/$DIRSAL"
+
+	chown $USER:$USER "$GRUPO" -R
+	chmod 777 "$GRUPO" -R
+
 }
 
 function instalar {
