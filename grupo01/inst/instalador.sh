@@ -6,6 +6,13 @@ DIRPAQUETE="$DIRINST/paquete"
 
 # Funciones
 
+function logger {
+
+	sh $DIRPAQUETE/logger.sh "$DIRINST" "instalador" "$1" "$2"
+
+	return 0
+}
+
 function variableConfigurada {
 
 	if [ -f "$DIRINST/instalador.conf" ]
@@ -45,22 +52,13 @@ function hayInstalacionPrevia {
 
 function hayInstalacionCorrupta {
 
-	VAR_DIRBIN=$(variableConfigurada DIRBIN)
-	VAR_DIRTAB="$(variableConfigurada DIRTAB)"
-	VAR_DIRNOV="$(variableConfigurada DIRNOV)"
-	VAR_DIROK="$(variableConfigurada DIROK)"
-	VAR_DIRNOK="$(variableConfigurada DIRNOK)"
-	VAR_DIRPROC="$(variableConfigurada DIRPROC)"
-	VAR_DIRSAL="$(variableConfigurada DIRSAL)"
-	VAR_HCIERRE="$(variableConfigurada HCIERRE)"
-
-	if [[ ! -z "$VAR_DIRBIN" || -d "$GRUPO/$VAR_DIRBIN"
-		|| ! -z "$VAR_DIRTAB" || -d "$GRUPO/$VAR_DIRTAB"
-	    || ! -z "$VAR_DIRNOV" || -d "$GRUPO/$VAR_DIRNOV"
-	    || ! -z "$VAR_DIROK" || -d "$GRUPO/$VAR_DIROK"
-	    || ! -z "$VAR_DIRNOK" || -d "$GRUPO/$VAR_DIRNOK"
-	    || ! -z "$VAR_DIRPROC" || -d "$GRUPO/$VAR_DIRPROC"
-	    || ! -z "$VAR_DIRSAL" || -d "$GRUPO/$VAR_DIRSAL"
+	if [[ ! -z "$VAR_DIRBIN" && -d "$GRUPO/$VAR_DIRBIN"
+		|| ! -z "$VAR_DIRTAB" && -d "$GRUPO/$VAR_DIRTAB"
+	    || ! -z "$VAR_DIRNOV" && -d "$GRUPO/$VAR_DIRNOV"
+	    || ! -z "$VAR_DIROK" && -d "$GRUPO/$VAR_DIROK"
+	    || ! -z "$VAR_DIRNOK" && -d "$GRUPO/$VAR_DIRNOK"
+	    || ! -z "$VAR_DIRPROC" && -d "$GRUPO/$VAR_DIRPROC"
+	    || ! -z "$VAR_DIRSAL" && -d "$GRUPO/$VAR_DIRSAL"
 	    || ! -z "$VAR_HCIERRE" ]]
 	then
 		return 0
@@ -71,19 +69,32 @@ function hayInstalacionCorrupta {
 
 function mostrarConfiguracion {
 
+	logger "TP SO7508 1º Cuatrimestre 2020. Copyright © Grupo 01" "INF"
 	echo "TP SO7508 1º Cuatrimestre 2020. Copyright © Grupo 01"
+	logger "Directorio padre:                $GRUPO" "INF"
 	echo "Directorio padre:                $GRUPO"
+	logger "Script Instalador:               $GRUPO/inst/instalador.sh" "INF"
 	echo "Script Instalador:               $GRUPO/inst/instalador.sh"
-	echo "Log de la instalación:           $GRUPO/inst/instalador.log"
-	echo "Configuración de la instalación: $GRUPO/inst/instalador.conf"
-	echo "Directorio de ejecutables:       $GRUPO/$DIRBIN"
-	echo "Directorio de tablas:            $GRUPO/$DIRTAB"
-	echo "Directorio de novedades:         $GRUPO/$DIRNOV"
-	echo "Directorio de aceptados:         $GRUPO/$DIROK"	
-	echo "Directorio de rechazados:        $GRUPO/$DIRNOK"
-	echo "Directorio de procesados:        $GRUPO/$DIRPROC"
-	echo "Directorio de salidas:           $GRUPO/$DIRSAL"
-	echo "Hora de Cierre:                  $HCIERRE" "(formato hhmmss)"
+	logger "Log de la instalación: $GRUPO/inst/instalador.log" "INF"
+	echo "Log de la instalación:               $GRUPO/inst/instalador.log"
+	logger "Configuración de la instalación: $GRUPO/inst/instalador.conf" "INF"
+	echo "Configuración de la instalación:     $GRUPO/inst/instalador.conf"
+	logger "Directorio de ejecutables: $GRUPO/$DIRBIN" "INF"
+	echo "Directorio de ejecutables:         $GRUPO/$DIRBIN"
+	logger "Directorio de tablas: $GRUPO/$DIRTAB" "INF"
+	echo "Directorio de tablas:              $GRUPO/$DIRTAB"
+	logger "Directorio de novedades: $GRUPO/$DIRNOV" "INF"
+	echo "Directorio de novedades:           $GRUPO/$DIRNOV"
+	logger "Directorio de aceptados: $GRUPO/$DIROK" "INF"
+	echo "Directorio de aceptados:           $GRUPO/$DIROK"	
+	logger "Directorio de rechazados: $GRUPO/$DIRNOK" "INF"
+	echo "Directorio de rechazados:          $GRUPO/$DIRNOK"
+	logger "Directorio de procesados: $GRUPO/$DIRPROC" "INF"
+	echo "Directorio de procesados:          $GRUPO/$DIRPROC"
+	logger "Directorio de salidas: $GRUPO/$DIRSAL" "INF"
+	echo "Directorio de salidas:             $GRUPO/$DIRSAL"
+	logger "Hora de Cierre (formato hhmmss): $HCIERRE" "INF"
+	echo "Hora de Cierre (formato hhmmss):   $HCIERRE"
 
 	return 0
 }
@@ -151,16 +162,10 @@ function cargarConfiguracion {
 	return 0
 }
 
-function logger {
-
-	echo "$1" "$2"
-
-	return 0
-}
-
 function crearArchivoLog {
 
-	logger "Creando archivo instalador.log" "INF"
+	chown $USER:$USER "$GRUPO" -R
+	chmod 777 "$GRUPO" -R
 
 	if [ ! -f "$DIRINST/instalador.log" ]
 	then
@@ -376,13 +381,14 @@ function configuracionDirectorios() {
 
 function confirmarConfiguracion {
 
+	logger "Estado de la instalación: $ESTADO_INSTALACION" "INF"
 	echo "Estado de la instalación: $ESTADO_INSTALACION"
 
 	confirmo="false"
 	while [[ "$confirmo" == "false" ]]
 	do
-		echo "¿Confirma la instalación? (SI-NO)"
 		logger "¿Confirma la instalación? (SI-NO)" "INF"
+		echo "¿Confirma la instalación? (SI-NO)"
 
 		read confirmacion
 		logger "Respuesta de confirmación: $confirmacion" "INF"
@@ -400,8 +406,8 @@ function confirmarConfiguracion {
 			confirmo="true"
 			clear
 		else
-			echo "Por favor, responda únicamente SI-NO"
 			logger "Respuesta de confirmación incorrecta" "ALE"
+			echo "Por favor, responda únicamente SI-NO"
 		fi
 	done
 }
@@ -411,16 +417,16 @@ function grabarArchivoConfiguracion {
 	logger "Grabando archivo de configuración: grupo01/inst/instalador.conf" "INF"
 	echo "Grabando archivo de configuración: grupo01/inst/instalador.conf"
 
-	echo "GRUPO-$GRUPO" > $DIRINST/instalador.conf
-	echo "DIRINST-$DIRINST" >> $DIRINST/instalador.conf
-	echo "DIRBIN-$DIRBIN" >> $DIRINST/instalador.conf
-	echo "DIRTAB-$DIRTAB" >> $DIRINST/instalador.conf
-	echo "DIRNOV-$DIRNOV" >> $DIRINST/instalador.conf
-	echo "DIROK-$DIROK" >> $DIRINST/instalador.conf
-	echo "DIRNOK-$DIRNOK" >> $DIRINST/instalador.conf
-	echo "DIRPROC-$DIRPROC" >> $DIRINST/instalador.conf
-	echo "DIRSAL-$DIRSAL" >> $DIRINST/instalador.conf
-	echo "HCIERRE-$HCIERRE" >> $DIRINST/instalador.conf
+	echo "GRUPO-$GRUPO" > "$DIRINST/instalador.conf"
+	echo "DIRINST-$DIRINST" >> "$DIRINST/instalador.conf"
+	echo "DIRBIN-$DIRBIN" >> "$DIRINST/instalador.conf"
+	echo "DIRTAB-$DIRTAB" >> "$DIRINST/instalador.conf"
+	echo "DIRNOV-$DIRNOV" >> "$DIRINST/instalador.conf"
+	echo "DIROK-$DIROK" >> "$DIRINST/instalador.conf"
+	echo "DIRNOK-$DIRNOK" >> "$DIRINST/instalador.conf"
+	echo "DIRPROC-$DIRPROC" >> "$DIRINST/instalador.conf"
+	echo "DIRSAL-$DIRSAL" >> "$DIRINST/instalador.conf"
+	echo "HCIERRE-$HCIERRE" >> "$DIRINST/instalador.conf"
 }
 
 function crearDirectorios {
@@ -453,6 +459,11 @@ function crearDirectorios {
 
 	chown $USER:$USER "$GRUPO" -R
 	chmod 777 "$GRUPO" -R
+	if ! [ $? -eq 0 ]
+	then
+		logger "Falló el seteo de permiso de lectura, escritura y ejecución para los directorios" "ERR"
+		return 1
+	fi
 
 }
 
@@ -461,9 +472,7 @@ function instalar {
 	logger "Iniciando instalación" "INF"
 	echo "Iniciando instalación"
 
-	cargarConfiguracion
-
-	crearArchivoLog	
+	cargarConfiguracion	
 
 	while [ "$ESTADO_INSTALACION" == "CONF" ]
 	do
@@ -480,8 +489,8 @@ function instalar {
 
 	crearDirectorios
 
-	logger "Instalación finalizada correctamente" "INF"
-	echo "Instalación finalizada correctamente"
+	logger "Instalación finalizada satisfactoriamente" "INF"
+	echo "Instalación finalizada satisfactoriamente"
 
 	return 0
 }
@@ -505,14 +514,16 @@ function eliminarInstalacionPrevia {
 	do
 	    if [ "$dir" != "$GRUPO/inst" ]
 	    then
-	    	rm -R "$dir"
+	    	find "$dir" ! -name "*.log" -delete 2>/dev/null
 	    fi
 	done
 }
 
 # Principal
 
-if [[ $1 != "-r" ]]
+crearArchivoLog
+
+if [[ "$1" != "-r" ]]
 then
 	if ! hayInstalacionPrevia
 	then
@@ -523,19 +534,13 @@ then
 			reparar
 		fi
 	else
-		echo "El Programa se encuentra instalado correctamente"
+		logger "El Programa ya se encuentra instalado correctamente" "INF"
+		echo "El Programa ya se encuentra instalado correctamente"
 		cargarConfiguracion
 		mostrarConfiguracion
 	fi
 else
-	if ! hayInstalacionPrevia
-	then
-		reparar
-	else
-		echo "El Programa se encuentra instalado correctamente"
-		cargarConfiguracion
-		mostrarConfiguracion
-	fi
+	reparar
 fi
 
 exit 0
