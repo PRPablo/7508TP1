@@ -39,8 +39,10 @@ ValidarArchivoNoVacioYRegular()
 
 ValidarNombreArchivo()
 {
-   nombreArchivoValido=$(echo "$file" | sed "s/[0-9]\{4\}-[A-B]-[0-9]\{8\}/S/")
-   if [ "$nombreArchivoValido" != "S" ]
+   #nombreArchivoValido=$(echo "$file" | sed "s/[0-9]\{4\}-[A-B]-[0-9]\{8\}/S/")
+   nombreArchivoValido= echo "$file" | grep -c  "^\([0-9]{4}\)-\([A-Z]\)-\([0-9]{8}\)*$"
+   
+   if [ "$?" -eq 0 ]
    then
 	mv "$file" "$PATH_RECHAZADOS"
 	logger "el archivo $file no cumple el formato de nombre valido se mueve a RECHAZADOS"
@@ -75,19 +77,22 @@ procesamos()
 			return 0
 		fi	
 
-		while IFS=',' read -r StateName StateCode TransmissionDateTime LocalTransactionDate ResponseCodeShortDescription MerchantCode TransactionCurrencyCode idTransaction ProcessingCode TransactionAmount SystemTrace LocalTransactionTime RetrievalReferenceNumber AuthorizationResponse ResponseCode AdditionalData_Installments ReservedPrivate_HostResponse TicketNumber ReservedPrivate_BatchNumber cGuid isO_MTI_cMessageType isO_MTI_cMessageType_Response 
-
-		do
-		   #verifico que StateName y StateCode exista en archivo CODIGOS_PROVINCIA
-		   if ! 
+		transaccionDate=$(echo "$file" | sed "s/^\([^-]*\)-.*/\1/");
+                StateCode=$(echo "$file" | sed "s/^[^-]*-\([^-]*\)-.*/\1/");
+                MerchantCode=$(echo "$file" | sed "s/^[^-]*-[^-]*-\([^-]*\)/\1/");
 
 
-		done	
+                #verifico si StateCode existe en el ARCHIVO DE CODIGOS-PROVINCIAS
+                if ! ( grep -q "$StateCode" "$ARCH_PROVINCIA" )
+                then
+                        mv "$file" "$PATH_RECHAZADOS"
+                        log "EL ARCHIVO $file NO ES VALIDO PORQUE NO EXISTE EL CODIGO EN EL ARCHIVO PROVINCIAS"
 
+                fi
+		
 	done
-
-
 }
+
 
 # Principal
 
@@ -129,16 +134,13 @@ do
 	  
         done  
 
-#        if [ "$(ls $PATH_ACEPTADOS/)" ]
-#	then
-#		procesamos
-#	fi
+        if [ "$(ls $PATH_ACEPTADOS/)" ]
+	then
+		procesamos
+	fi
 
        sleep 10
 done  
 
 logger "Proceso finalizado correctamente" "INF"
-echo "Proceso finalizado correctamente"
-
-exit 0
-
+echo "Procesif [ "$?" -eq 0 ]
