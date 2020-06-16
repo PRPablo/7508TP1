@@ -4,7 +4,7 @@
 
 function logger {
 
-  sh $DIRBIN/logger.sh "$DIRPROC" "arranque" "$1" "$2"
+  ./logger.sh "$DIRPROC" "arranque" "$1" "$2"
 
   return 0
 }
@@ -26,7 +26,7 @@ then
     exit 0
   fi
 
-  $DIRBIN./proc.sh &
+  ./proceso.sh &
 
   PID_PROCESO=`ps -a | grep $NOMBRE_PROCESO | awk '{print $1}'`
   logger "Programa iniciado exitosamente en segundo plano con pid: $PID_PROCESO" "INF"

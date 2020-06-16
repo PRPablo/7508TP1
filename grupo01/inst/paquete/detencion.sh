@@ -4,7 +4,7 @@
 
 function logger {
 
-  sh $DIRBIN/logger.sh "$DIRPROC" "detencion" "$1" "$2"
+  ./logger.sh "$DIRPROC" "detencion" "$1" "$2"
 
   return 0
 }

@@ -86,7 +86,7 @@ function crearArchivoLog {
 	VAR_DIRPROC="$(variableConfigurada DIRPROC)"
 	DIRPROC="$GRUPO/$VAR_DIRPROC"
 
-	if [ -d "$DIRPROC"]
+	if [ -d "$DIRPROC" ]
 	then
 		if [ ! -f "$DIRPROC/inicializador.log" ]
 		then
@@ -218,9 +218,9 @@ function exportarVariablesAmbiente {
 	DIRNOK="$GRUPO/$VAR_DIRNOK"
 	DIRPROC="$GRUPO/$VAR_DIRPROC"
 	DIRSAL="$GRUPO/$VAR_DIRSAL"
-	HCIERRE="$GRUPO/$VAR_HCIERRE"
+	HCIERRE="$VAR_HCIERRE"
 
-	INICIALIZADO=S
+	INICIALIZADO="S"
 	export INICIALIZADO
 	export GRUPO
 	export DIRINST
@@ -237,9 +237,9 @@ function exportarVariablesAmbiente {
 function ejecutarProceso {
 
 	logger "Ejecutando el proceso en segundo plano" "INF"
-	echo "ejecutando el proceso en segundo plano"
+	echo "Ejecutando el proceso en segundo plano"
 
-	$DIRBIN./arranque.sh
+	./arranque.sh
 
 	NOMBRE_PROCESO="proceso.sh"
 	PID_PROCESO=`ps -a | grep "$NOMBRE_PROCESO" | awk '{print $1}'`
@@ -285,5 +285,3 @@ else
 		notificarReparacion "Hay directorios dañados o ilegibles."
 	fi
 fi
-
-exit 0
