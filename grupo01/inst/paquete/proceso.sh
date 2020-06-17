@@ -1,7 +1,6 @@
-#proceso.sh
-	#HCIERRE="$GRUPO/$VAR_HCIERRE"
+#HCIERRE="$GRUPO/$VAR_HCIERRE"
 
-PATH_NOVEDADES="$DIRBIN" 
+PATH_NOVEDADES="$DIRNOV" 
 PATH_ACEPTADOS="$DIROK"
 PATH_RECHAZADOS="$DIRNOK"
 PATH_SALIDA="$DIRSAL"
@@ -56,11 +55,11 @@ validarArchivo()
 {
    if ValidarArchivoNoVacioYRegular;	   
    then
-	    if ValidarNombreArchivo;
-	    then 
+#	    if ValidarNombreArchivo;
+#	    then 
          	    return 0;
 	    	    
-  	    fi
+#  	    fi
    fi
 
    return -1
@@ -71,7 +70,7 @@ procesamos()
 {
 	for file in "$PATH_ACEPTADOS/"*;
 	do
-		if [ ! "$(ls $PATH_ACEPTADOS/)"]
+		if [ ! "$(ls $PATH_ACEPTADOS/)" ]
 		then
 			logger "no hay mas archivos para procesar en ACEPTADOS"
 			return 0
@@ -81,13 +80,20 @@ procesamos()
                 StateCode=$(echo "$file" | sed "s/^[^-]*-\([^-]*\)-.*/\1/");
                 MerchantCode=$(echo "$file" | sed "s/^[^-]*-[^-]*-\([^-]*\)/\1/");
 
+		 echo "transaccionDate: $transaccionDate";
+                echo "StateCode: $StateCode";
+                echo "MerchantCod: $MerchantCode";
+
 
                 #verifico si StateCode existe en el ARCHIVO DE CODIGOS-PROVINCIAS
                 if ! ( grep -q "$StateCode" "$ARCH_PROVINCIA" )
                 then
                         mv "$file" "$PATH_RECHAZADOS"
-                        log "EL ARCHIVO $file NO ES VALIDO PORQUE NO EXISTE EL CODIGO EN EL ARCHIVO PROVINCIAS"
-
+                        logger "EL ARCHIVO $file NO ES VALIDO PORQUE NO EXISTE EL CODIGO EN EL ARCHIVO PROVINCIAS"
+			echo "el archivo $file no es valido pq no existe el codigo $StateCode"
+		else
+		       StateName=$(grep "^[^,]*,$StateCode" "$ARCH_PROVINCIA" | sed "s/^\([^,]*\),.*/\1/");
+                       echo "el nombre de estado es: $StateName";	
                 fi
 		
 	done
@@ -111,7 +117,7 @@ while [ "$PROCESO_ACTIVO" == "S" ]
 do
         #verificandoSystemInicializado()
 
-	for file in "$PATH_NOVEDADES/"*.csv;
+	for file in "$PATH_NOVEDADES/"*;
         do
 	    let "CICLO=CICLO+1"
             logger "Voy por el ciclo: $CICLO"
@@ -139,7 +145,7 @@ do
 		procesamos
 	fi
 
-       sleep 10
+       sleep 1m
 done  
 
 logger "Proceso finalizado correctamente" "INF"
